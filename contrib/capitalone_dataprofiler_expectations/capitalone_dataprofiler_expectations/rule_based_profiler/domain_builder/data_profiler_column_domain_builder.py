@@ -13,8 +13,8 @@ from typing import (
 )
 
 
-
 from DataProfiler import Profiler
+
 import great_expectations.exceptions as gx_exceptions
 from great_expectations.core.domain import Domain, SemanticDomainTypes
 from great_expectations.core.metric_domain_types import MetricDomainTypes
@@ -45,10 +45,10 @@ if TYPE_CHECKING:
 # ===================================================
 # Imports From Column_domain_builder
 
-#minimize import later
+# minimize import later
 
 class DataProfilerColumnDomainBuilder(ColumnDomainBuilder):
-    
+
     def _get_domains(
         self,
         rule_name: str,
@@ -66,9 +66,11 @@ class DataProfilerColumnDomainBuilder(ColumnDomainBuilder):
         Returns:
             List of domains that match the desired columns and filtering criteria.
         """
-        batch_ids: List[str] = self.get_batch_ids(variables=variables)  # type: ignore[assignment] # could be None
+        batch_ids: List[str] = self.get_batch_ids(
+            variables=variables)  # type: ignore[assignment] # could be None
 
-        validator: Validator = self.get_validator(variables=variables)  # type: ignore[assignment] # could be None
+        # type: ignore[assignment] # could be None
+        validator: Validator = self.get_validator(variables=variables)
 
         effective_column_names: List[str] = self.get_effective_column_names(
             batch_ids=batch_ids,
@@ -82,11 +84,11 @@ class DataProfilerColumnDomainBuilder(ColumnDomainBuilder):
             rule_name=rule_name,
             column_names=effective_column_names,
             domain_type=self.domain_type,
-            table_column_name_to_inferred_semantic_domain_type_map=self.semantic_type_filter.table_column_name_to_inferred_semantic_domain_type_map,  # type: ignore[union-attr] # could be None
+            # type: ignore[union-attr] # could be None
+            table_column_name_to_inferred_semantic_domain_type_map=self.semantic_type_filter.table_column_name_to_inferred_semantic_domain_type_map,
         )
 
         return domains
-
 
     def get_effective_column_names(
         self,
@@ -101,13 +103,14 @@ class DataProfilerColumnDomainBuilder(ColumnDomainBuilder):
 
         effective_column_names = list()
 
-        profile_path:str = variables["parameter_nodes"]["variables"]["variables"]["profile_path"]
+        profile_path: str = variables["parameter_nodes"]["variables"]["variables"]["profile_path"]
 
         profile = Profiler.load(profile_path)
 
-        report = profile.report(report_options={"output_format":"compact"})
+        report = profile.report(report_options={"output_format": "compact"})
 
-        rule_name_to_data_type = {"numeric_rule": {"int", "float"}, "timestamp_rule": {"datetime"}, "text_rule": {"string"}, "categorical_rule": {"string"}}
+        rule_name_to_data_type = {"numeric_rule": {"int", "float"}, "timestamp_rule": {
+            "datetime"}, "text_rule": {"string"}, "categorical_rule": {"string"}}
 
         data_types_from_rule = rule_name_to_data_type[rule_name.lower()]
 
