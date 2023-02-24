@@ -14,11 +14,15 @@ from typing import (
 
 
 
+from DataProfiler import Profiler
 import great_expectations.exceptions as gx_exceptions
 from great_expectations.core.domain import Domain, SemanticDomainTypes
 from great_expectations.core.metric_domain_types import MetricDomainTypes
 from great_expectations.data_context.util import instantiate_class_from_config
-from great_expectations.rule_based_profiler.domain_builder import DomainBuilder
+from great_expectations.rule_based_profiler.domain_builder import (
+    DomainBuilder,
+    ColumnDomainBuilder,
+)
 from great_expectations.rule_based_profiler.helpers.util import (
     build_domains_from_column_names,
     get_parameter_value_and_validate_return_type,
@@ -42,15 +46,9 @@ if TYPE_CHECKING:
 # Imports From Column_domain_builder
 
 #minimize import later
-import DataProfiler as dp
-
-from great_expectations.rule_based_profiler.domain_builder import ColumnDomainBuilder
 
 class DataProfilerColumnDomainBuilder(ColumnDomainBuilder):
     
-
-    # ===================================================
-    # Task 1: Override the _get_domains() function so that when it calls self.get_effective_column_names() you also pass in rule_name .
     def _get_domains(
         self,
         rule_name: str,
@@ -90,8 +88,6 @@ class DataProfilerColumnDomainBuilder(ColumnDomainBuilder):
         return domains
 
 
-    # ===================================================
-    # Task 2: Overload the get_effective_column_names() to accept the rule_name: Str parameter.
     def get_effective_column_names(
         self,
         batch_ids: Optional[List[str]] = None,
@@ -103,26 +99,20 @@ class DataProfilerColumnDomainBuilder(ColumnDomainBuilder):
         This method applies multiple directives to obtain columns to be included as part of returned "Domain" objects.
         """
 
-        # new stuff
-        # lower everything such as NUMERIC
-        profile_path:str = variables["profile_path"]
+        effective_column_names = list()
 
-        profile = dp.Profiler.load(profile_path)
+        profile_path:str = variables["parameter_nodes"]["variables"]["variables"]["profile_path"]
+
+        profile = Profiler.load(profile_path)
 
         report = profile.report(report_options={"output_format":"compact"})
 
-        effective_column_names = list()
+        rule_name_to_data_type = {"numeric_rule": {"int", "float"}, "timestamp_rule": {"datetime"}, "text_rule": {"string"}, "categorical_rule": {"string"}}
 
-        rule_name_to_data_type = {"NUMERIC": {"int", "float"}, "TIMESTAMP": {"datetime"}, "STRING": {"string"}}
-
-        data_type_from_rule = rule_name_to_data_type[rule_name]
+        data_types_from_rule = rule_name_to_data_type[rule_name.lower()]
 
         for col in report["data_stats"]:
-            if col["data_type"] in data_type_from_rule:
+            if col["data_type"].lower() in data_types_from_rule:
                 effective_column_names.append(col["column_name"])
 
-        # /new stuffeffective_column_names
         return effective_column_names
-    
-
-
