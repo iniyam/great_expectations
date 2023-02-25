@@ -26,8 +26,6 @@ from great_expectations.rule_based_profiler.parameter_container import (
 
 yaml = YAML(typ="safe")
 
-# noinspection PyPep8Naming
-
 
 @pytest.mark.integration
 @pytest.mark.slow  # 1.21s
