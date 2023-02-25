@@ -13,7 +13,7 @@ from typing import (
 )
 
 
-from DataProfiler import Profiler
+from dataprofiler import Profiler
 
 import great_expectations.exceptions as gx_exceptions
 from great_expectations.core.domain import Domain, SemanticDomainTypes
@@ -40,12 +40,6 @@ if TYPE_CHECKING:
         AbstractDataContext,
     )
     from great_expectations.validator.validator import Validator
-
-
-# ===================================================
-# Imports From Column_domain_builder
-
-# minimize import later
 
 class DataProfilerColumnDomainBuilder(ColumnDomainBuilder):
 
@@ -101,7 +95,19 @@ class DataProfilerColumnDomainBuilder(ColumnDomainBuilder):
         This method applies multiple directives to obtain columns to be included as part of returned "Domain" objects.
         """
 
+        
         effective_column_names = list()
+
+        
+
+        rule_name_to_data_types = {"numeric_rule": {"int", "float"}, "timestamp_rule": {
+            "datetime"}, "text_rule": {"string"}, "categorical_rule": {"string"}}
+
+        if rule_name == None or variables == None:
+            return effective_column_names
+
+        if rule_name not in rule_name_to_data_types:
+            return effective_column_names
 
         profile_path: str = variables["parameter_nodes"]["variables"]["variables"]["profile_path"]
 
@@ -109,10 +115,7 @@ class DataProfilerColumnDomainBuilder(ColumnDomainBuilder):
 
         report = profile.report(report_options={"output_format": "compact"})
 
-        rule_name_to_data_type = {"numeric_rule": {"int", "float"}, "timestamp_rule": {
-            "datetime"}, "text_rule": {"string"}, "categorical_rule": {"string"}}
-
-        data_types_from_rule = rule_name_to_data_type[rule_name.lower()]
+        data_types_from_rule = rule_name_to_data_types[rule_name.lower()]
 
         for col in report["data_stats"]:
             if col["data_type"].lower() in data_types_from_rule:
