@@ -1,0 +1,8 @@
+https://hooks.slack.com/services/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
+https://hooks.slack.com/services/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
+https://hooks.slack.com/services/T5EMJ1L4Q/B010V99DMKatVtvW9l0INvq4PAwgH61zqA
+https://hooks.slack.com/services/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
+pattern: general-public-private-key
+pattern: asymmetric-private-key
+secret|https://my-vault-name.vault.azure.net/secrets/my-secret/a0b00aba001aaab10b111001100a11ab|
+secret you want to retrieve by specifying its version id (32 lowercase alphanumeric characters) like this: ``secret|https://my-vault-name.vault.azure.net/secrets/my-secret/a0b00aba001aaab10b111001100a11ab`
